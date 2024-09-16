@@ -1,0 +1,12 @@
+// Footer.jsx
+import React from "react";
+
+const Footer = () => {
+  return (
+    <footer className="bg-gray-800 text-white p-4">
+      <p>© 2024 My App</p>
+    </footer>
+  );
+};
+
+export default Footer;
