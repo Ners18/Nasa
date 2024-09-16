@@ -11,7 +11,7 @@ const App = () => {
       <Header />
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<MainContent />} />
+          <Route path="/Nasa" element={<MainContent />} />
           <Route path="/asset/:id" element={<Asset />} />
         </Routes>
       </main>
