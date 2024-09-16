@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Nasa/static/css/main.92f5c013.css",
+    "main.js": "/Nasa/static/js/main.046d9473.js",
+    "index.html": "/Nasa/index.html",
+    "main.92f5c013.css.map": "/Nasa/static/css/main.92f5c013.css.map",
+    "main.046d9473.js.map": "/Nasa/static/js/main.046d9473.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.92f5c013.css",
+    "static/js/main.046d9473.js"
+  ]
+}
