@@ -41,7 +41,7 @@ const MainContent = () => {
       <div className="mb-4 flex items-center">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search...."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
