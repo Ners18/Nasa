@@ -1,15 +1,25 @@
-// MainContent.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
+const SkeletonLoader = () => (
+  <div className="border border-gray-300 rounded-lg p-4 animate-pulse">
+    <div className="bg-gray-200 h-40 rounded-lg mb-2" />
+    <div className="bg-gray-200 h-6 rounded w-3/4 mx-auto" />
+  </div>
+);
 
 const MainContent = () => {
   const [query, setQuery] = useState("");
   const [mediaTypes, setMediaTypes] = useState([]);
   const [media, setMedia] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false); // Animation control state
   const navigate = useNavigate(); // Hook for navigation
 
   const fetchMedia = async () => {
+    setLoading(true); // Start loading
+    setLoaded(false); // Reset loaded state
     try {
       const mediaTypesQuery = mediaTypes.join(",");
       const response = await axios.get(
@@ -18,6 +28,11 @@ const MainContent = () => {
       setMedia(response.data.collection.items);
     } catch (error) {
       console.error("Error fetching media:", error);
+    } finally {
+      setLoading(false); // Stop loading
+      setTimeout(() => {
+        setLoaded(true); // Trigger zoom-out after a short delay
+      }, 100); // Adjust delay as needed
     }
   };
 
@@ -36,6 +51,11 @@ const MainContent = () => {
     navigate(`/asset/${id}`);
   };
 
+  // Filter media by type
+  const images = media.filter((item) => item.data[0]?.media_type === "image");
+  const videos = media.filter((item) => item.data[0]?.media_type === "video");
+  const audios = media.filter((item) => item.data[0]?.media_type === "audio");
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="mb-4 flex items-center">
@@ -53,6 +73,7 @@ const MainContent = () => {
           Search
         </button>
       </div>
+
       <div className="mb-4 flex space-x-4">
         <label className="flex items-center space-x-2">
           <input
@@ -82,26 +103,106 @@ const MainContent = () => {
           <span className="text-gray-700">Pictures</span>
         </label>
       </div>
-      <div className="grid grid-cols-4 gap-4 w-full max-w-6xl">
-        {media.slice(0, 8).map((item, index) => (
-          <div
-            key={index}
-            className="border border-gray-300 rounded-lg p-4 text-center cursor-pointer"
-            onClick={() => handleImageClick(item.data[0]?.nasa_id)}
-          >
-            <p className="mb-2 font-semibold">
-              {item.data[0]?.title || "No Title"}
-            </p>
-            {item.links && item.links[0]?.href && (
-              <img
-                src={item.links[0].href}
-                alt={item.data[0]?.title}
-                className="w-full h-auto rounded-lg"
-              />
-            )}
-          </div>
-        ))}
-      </div>
+
+      {/* Loading Skeletons */}
+      {loading ? (
+        <div className="grid grid-cols-4 gap-4 w-full max-w-6xl">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <SkeletonLoader key={index} />
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Display Images */}
+          {images.length > 0 && (
+            <div
+              className={`media-section transition-transform duration-500 ${
+                loaded ? "scale-100" : "scale-110"
+              }`}
+            >
+              <div className="grid grid-cols-4 gap-4 w-full max-w-6xl">
+                {images.slice(0, 8).map((item, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 rounded-lg p-4 text-center cursor-pointer"
+                    onClick={() => handleImageClick(item.data[0]?.nasa_id)}
+                  >
+                    <p className="mb-2 font-semibold">
+                      {item.data[0]?.title || "No Title"}
+                    </p>
+                    {item.links && item.links[0]?.href && (
+                      <img
+                        src={item.links[0].href}
+                        alt={item.data[0]?.title}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Display Videos */}
+          {videos.length > 0 && (
+            <div
+              className={`media-section mt-8 transition-transform duration-500 ${
+                loaded ? "scale-100" : "scale-110"
+              }`}
+            >
+              <div className="grid grid-cols-4 gap-4 w-full max-w-6xl">
+                {videos.slice(0, 8).map((item, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 rounded-lg p-4 text-center cursor-pointer"
+                    onClick={() => handleImageClick(item.data[0]?.nasa_id)}
+                  >
+                    <p className="mb-2 font-semibold">
+                      {item.data[0]?.title || "No Title"}
+                    </p>
+                    {item.links && item.links[0]?.href && (
+                      <video
+                        controls
+                        className="w-full h-auto rounded-lg"
+                        src={item.links[0]?.href}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Display Audios */}
+          {audios.length > 0 && (
+            <div
+              className={`media-section mt-8 transition-transform duration-500 ${
+                loaded ? "scale-100" : "scale-110"
+              }`}
+            >
+              <div className="grid grid-cols-4 gap-4 w-full max-w-6xl">
+                {audios.slice(0, 8).map((item, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 rounded-lg p-4 text-center cursor-pointer"
+                    onClick={() => handleImageClick(item.data[0]?.nasa_id)}
+                  >
+                    <p className="mb-2 font-semibold">
+                      {item.data[0]?.title || "No Title"}
+                    </p>
+                    {item.links && item.links[0]?.href && (
+                      <audio controls className="w-full">
+                        <source src={item.links[0].href} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                      </audio>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

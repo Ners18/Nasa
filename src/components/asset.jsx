@@ -2,15 +2,29 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
+// Skeleton Loader Component
+const SkeletonLoader = () => (
+  <div className="flex flex-col items-center justify-center p-4">
+    <div className="bg-white shadow-md rounded-lg p-6 max-w-lg w-full animate-pulse">
+      <div className="h-8 bg-gray-200 rounded mb-4" /> {/* Title */}
+      <div className="h-40 bg-gray-200 rounded mb-4" /> {/* Image/Video area */}
+      <div className="h-10 bg-gray-200 rounded mb-4" /> {/* Audio controls */}
+      <div className="h-16 bg-gray-200 rounded mb-4" /> {/* Metadata area */}
+      <div className="h-6 bg-gray-200 rounded" /> {/* Asset ID */}
+    </div>
+  </div>
+);
+
 const Asset = () => {
-  const { id } = useParams(); // Get the asset ID from the URL
-  const [assetData, setAssetData] = useState(null); // State to hold the metadata (title, description)
-  const [assetMedia, setAssetMedia] = useState([]); // State to hold the asset media URLs (images, videos, or audio)
-  const [loading, setLoading] = useState(true); // State for loading indicator
-  const [metadataVisible, setMetadataVisible] = useState(false); // State for toggling metadata visibility
+  const { id } = useParams();
+  const [assetData, setAssetData] = useState(null);
+  const [assetMedia, setAssetMedia] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [metadataVisible, setMetadataVisible] = useState(false);
 
   useEffect(() => {
     const fetchAsset = async () => {
+      setLoading(true); // Start loading
       try {
         const metadataResponse = await axios.get(
           `https://images-api.nasa.gov/search?nasa_id=${id}`
@@ -24,31 +38,31 @@ const Asset = () => {
 
         const mediaItems = mediaResponse.data.collection.items;
 
-        // Filter for the original images, videos, and audios
         const mediaLinks = mediaItems
           .filter(
             (item) =>
-              item.href.endsWith("~orig.jpg") || // Keep only the original image
-              item.href.endsWith("~orig.mp4") || // Keep only the original video
-              item.href.endsWith(".mp3") || // Handle audio files like mp3
-              item.href.endsWith(".wav") || // Handle audio files like wav
-              item.href.endsWith(".m4a") // Handle audio files like m4a
+              item.href.endsWith("~orig.jpg") ||
+              item.href.endsWith("~orig.mp4") ||
+              item.href.endsWith(".mp3") ||
+              item.href.endsWith(".wav") ||
+              item.href.endsWith(".m4a")
           )
           .map((item) => item.href);
 
         setAssetData(metadata);
         setAssetMedia(mediaLinks);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching asset:", error);
-        setLoading(false);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
 
     fetchAsset();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
+  // If loading, show skeleton loader
+  if (loading) return <SkeletonLoader />;
   if (!assetData || assetMedia.length === 0) return <div>No asset found</div>;
 
   // Find the first audio file (mp3, wav, m4a)
